@@ -62,12 +62,12 @@ def solve_it(input_data):
 
     if input_array.shape[0] <= 200:
         solution_dict = solve_it_dynamic_programming(input_array, capacity)
+        output_data = prepare_output_data(solution_dict, is_provably_optimal=True)
     else:
         solution_dict = solve_it_greedy_value_per_weight(input_array, capacity)
+        output_data = prepare_output_data(solution_dict, is_provably_optimal=False)
 
-    print(solution_dict)
-
-    output_data = prepare_output_data(solution_dict)
+    #print(solution_dict)
 
     return output_data
 
@@ -77,8 +77,8 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         file_location = sys.argv[1].strip()
         with open(file_location, 'r') as input_data_file:
-            input_data = input_data_file.read()
-        print(solve_it(input_data))
+            data = input_data_file.read()
+        print(solve_it(data))
     else:
         print('This test requires an input file.  Please select one from the data directory. (i.e. python solver.py ./data/ks_4_0)')
 

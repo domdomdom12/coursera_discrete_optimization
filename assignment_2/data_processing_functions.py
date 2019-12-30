@@ -23,12 +23,17 @@ def load_input_data(input_data):
     return out_array, capacity
 
 
-def prepare_output_data(solution_dict):
+def prepare_output_data(solution_dict, is_provably_optimal=False):
     """
     Return output in specified format.
     """
 
-    output_data = str(solution_dict['total_value']) + ' ' + str(0) + '\n'
+    if is_provably_optimal:
+        optimal = str(1)
+    else:
+        optimal = str(0)
+
+    output_data = str(solution_dict['total_value']) + ' ' + optimal + '\n'
     output_data += ' '.join(map(str, solution_dict['solution_array']))
 
     return output_data

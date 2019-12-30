@@ -81,7 +81,7 @@ def dynamic_programming_helper(input_array, capacity, item_num, memorisation_dic
     # add the answer to our memorisation dictionary
     memorisation_dict[(capacity, item_num)] = output
 
-    return int(output), memorisation_dict
+    return output, memorisation_dict
 
 
 def get_solution_from_memorisation_dict(input_array, memorisation_dict):
@@ -104,7 +104,8 @@ def get_solution_from_memorisation_dict(input_array, memorisation_dict):
 def dynamic_programming(input_array, capacity):
     num_items = input_array.shape[0]
 
-    total_value, memorisation_dict = dynamic_programming_helper(input_array, capacity, num_items)
+    total_value, memorisation_dict = dynamic_programming_helper(input_array, capacity, num_items,
+                                                                memorisation_dict={})
 
     solution_array, total_weight = get_solution_from_memorisation_dict(input_array, memorisation_dict)
 
