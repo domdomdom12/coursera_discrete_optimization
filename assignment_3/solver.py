@@ -32,9 +32,10 @@ def solve_it_trivial(input_data):
 
 
 def solve_it_cp(edge_array, num_nodes):
-    model, nc_vars = create_model(edge_array, num_nodes)
 
-    model, nc_vars, solv, stat = solve_model(model, nc_vars)
+    model, nc_vars, ncb_vars, cu_vars, obj_val_var = create_model(edge_array, num_nodes)
+
+    model, solv, stat = solve_model(model, max_solve_time=120)
 
     solution_dict = get_solution_dict(nc_vars, solv, num_nodes)
 
