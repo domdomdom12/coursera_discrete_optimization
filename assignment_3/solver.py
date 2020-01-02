@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from assignment_3.data_processing_functions import load_input_data, prepare_output_data
-from assignment_3.solving_functions import create_model, solve_model, get_solution_dict
+from assignment_3.solving_functions import greedy_colouring, create_model, solve_model, get_solution_dict
 
 def solve_it_trivial(input_data):
     # Modify this code to run your optimization algorithm
@@ -31,26 +31,35 @@ def solve_it_trivial(input_data):
     return output_data
 
 
-def solve_it_cp(edge_array, num_nodes):
+def solve_it_cp(edge_array, num_nodes, max_solve_time=600):
+    greedy_solution_dict = greedy_colouring(edge_array)
 
-    model, nc_vars, ncb_vars, cu_vars, obj_val_var = create_model(edge_array, num_nodes)
+    max_obj = greedy_solution_dict['num_colours']
 
-    model, solv, stat = solve_model(model, max_solve_time=120)
+    model, nc_vars, ncb_vars, cu_vars, obj_val_var = create_model(edge_array, num_nodes, max_obj=max_obj)
+
+    model, solv, stat = solve_model(model, max_solve_time=max_solve_time)
 
     solution_dict = get_solution_dict(nc_vars, solv, num_nodes)
 
     return solution_dict
 
 
+def solve_it_greedy(edge_array):
+
+    return greedy_colouring(edge_array)
+
+
 def solve_it(input_data):
 
     edge_array, num_nodes = load_input_data(input_data)
 
-    solution_dict = solve_it_cp(edge_array, num_nodes)
+    if num_nodes <= 500:
+        solution_dict = solve_it_cp(edge_array, num_nodes)
+    else:
+        solution_dict = solve_it_greedy(edge_array)
 
     output_data = prepare_output_data(solution_dict, is_provably_optimal=False)
-
-    # print(solution_dict)
 
     return output_data
 
