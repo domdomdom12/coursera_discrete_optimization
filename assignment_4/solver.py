@@ -3,13 +3,15 @@
 
 import math
 from collections import namedtuple
+from assignment_4.data_processing_functions import load_input_data, make_distance_matrix, prepare_output_data
+from assignment_4.solving_functions import get_best_greedy_tour
 
 Point = namedtuple("Point", ['x', 'y'])
 
 def length(point1, point2):
     return math.sqrt((point1.x - point2.x)**2 + (point1.y - point2.y)**2)
 
-def solve_it(input_data):
+def solve_it_trivial(input_data):
     # Modify this code to run your optimization algorithm
 
     # parse the input
@@ -35,6 +37,29 @@ def solve_it(input_data):
     # prepare the solution in the specified output format
     output_data = '%.2f' % obj + ' ' + str(0) + '\n'
     output_data += ' '.join(map(str, solution))
+
+    return output_data
+
+
+def solve_it_greedy(distance_matrix, num_nodes, num_runs=100):
+
+    solution_dict = get_best_greedy_tour(distance_matrix, num_nodes, num_runs=num_runs)
+
+    return solution_dict
+
+
+def solve_it(input_data):
+
+    nodes_array, num_nodes = load_input_data(input_data)
+
+    distance_matrix = make_distance_matrix(nodes_array)
+
+    if num_nodes < 2000:
+        solution_dict = solve_it_greedy(distance_matrix, num_nodes, num_runs=100)
+    else:
+        solution_dict = solve_it_greedy(distance_matrix, num_nodes, num_runs=1)
+
+    output_data = prepare_output_data(solution_dict, is_provably_optimal=False)
 
     return output_data
 
