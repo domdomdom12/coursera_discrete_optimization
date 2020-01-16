@@ -4,7 +4,7 @@
 import math
 from collections import namedtuple
 from assignment_4.data_processing_functions import load_input_data, make_distance_matrix, prepare_output_data
-from assignment_4.solving_functions import get_best_greedy_tour
+from assignment_4.solving_functions import get_best_greedy_tour, two_opt
 
 Point = namedtuple("Point", ['x', 'y'])
 
@@ -48,6 +48,16 @@ def solve_it_greedy(distance_matrix, num_nodes, num_runs=100):
     return solution_dict
 
 
+def solve_it_two_opt(distance_matrix, num_nodes, num_runs_greedy, num_runs_two_opt):
+    solution_dict = get_best_greedy_tour(distance_matrix, num_nodes, num_runs=num_runs_greedy,
+                                         start_node_index=None,
+                                         second_best_greedy_probability=0.005)
+
+    solution_dict = two_opt(solution_dict, distance_matrix, num_runs=num_runs_two_opt)
+
+    return solution_dict
+
+
 def solve_it(input_data):
 
     nodes_array, num_nodes = load_input_data(input_data)
@@ -55,7 +65,7 @@ def solve_it(input_data):
     distance_matrix = make_distance_matrix(nodes_array)
 
     if num_nodes < 2000:
-        solution_dict = solve_it_greedy(distance_matrix, num_nodes, num_runs=100)
+        solution_dict = solve_it_two_opt(distance_matrix, num_nodes, 1000, 10000)
     else:
         solution_dict = solve_it_greedy(distance_matrix, num_nodes, num_runs=1)
 

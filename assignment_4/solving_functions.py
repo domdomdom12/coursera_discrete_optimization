@@ -75,4 +75,49 @@ def get_best_greedy_tour(distance_matrix, num_nodes, num_runs=100,
     return solution_dict
 
 
+def calculate_gain(tour, distance_matrix, node_1_index, node_2_index):
+    num_nodes = distance_matrix.shape[0]
+
+    return distance_matrix[tour[node_1_index], tour[(node_1_index + 1) % num_nodes]] \
+           + distance_matrix[tour[node_2_index % num_nodes], tour[(node_2_index + 1) % num_nodes]] \
+           - distance_matrix[tour[node_1_index], tour[node_2_index % num_nodes]] \
+           - distance_matrix[tour[(node_1_index + 1) % num_nodes], tour[(node_2_index + 1) % num_nodes]]
+
+
+def swap_tour_edges(tour, node_1_index, node_2_index):
+
+    return np.concatenate((tour[:node_1_index+1], np.array([tour[node_2_index]]),
+                           np.flip(tour[node_1_index+2:node_2_index]), np.array([tour[node_1_index+1]]),
+                           tour[node_2_index+1:]))
+
+
+def two_opt(solution_dict, distance_matrix, num_runs=1000):
+    tour = solution_dict['solution_array']
+    best_distance = solution_dict['tour_distance']
+    size = len(tour)
+    improved = True
+
+    counter = 0
+
+    while improved:
+        if counter > num_runs:
+            break
+        improved = False
+        for n1 in range(size - 3):
+            for n2 in range(n1 + 2, size):
+                gain = calculate_gain(tour, distance_matrix, n1, n2)
+                if gain > 0:
+                    best_distance -= gain
+                    tour = swap_tour_edges(tour, n1, n2)
+                    improved = True
+                    counter += 1
+
+    solution_dict = {
+        'solution_array': tour,
+        'tour_distance': best_distance
+    }
+
+    return solution_dict
+
+
 
