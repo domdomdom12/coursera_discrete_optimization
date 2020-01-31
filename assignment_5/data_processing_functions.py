@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.spatial.distance import cdist
 
 
 def load_input_data(input_data):
@@ -41,5 +42,33 @@ def load_input_data(input_data):
     data_dict['customer_location_array'] = customer_location_array
 
     return data_dict
+
+
+def create_facility_customer_dist_matrix(data_dict):
+    """
+    Distance matrix between facilities (rows) and customers (columns)
+    """
+
+    return cdist(data_dict['facility_location_array'], data_dict['customer_location_array'])
+
+
+def prepare_output_data(data_dict, results_dict, is_provably_optimal=False):
+    """
+    Return output in specified format.
+    """
+
+    if is_provably_optimal:
+        optimal = str(1)
+    else:
+        optimal = str(0)
+
+    solution = np.zeros(len(data_dict['customer_location_array']))
+    for facility, customer_list in results_dict['facility_customers'].items():
+        solution[customer_list] = facility
+
+    output_data = str(results_dict['objective_value']) + ' ' + optimal + '\n'
+    output_data += ' '.join(map(str, solution.astype(int)))
+
+    return output_data
 
 

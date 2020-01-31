@@ -3,6 +3,8 @@
 
 from collections import namedtuple
 import math
+from assignment_5.data_processing_functions import load_input_data, prepare_output_data
+from assignment_5.solving_functions import build_model,  solve_model_milp, get_results_dict
 
 Point = namedtuple("Point", ['x', 'y'])
 Facility = namedtuple("Facility", ['index', 'setup_cost', 'capacity', 'location'])
@@ -11,7 +13,7 @@ Customer = namedtuple("Customer", ['index', 'demand', 'location'])
 def length(point1, point2):
     return math.sqrt((point1.x - point2.x)**2 + (point1.y - point2.y)**2)
 
-def solve_it(input_data):
+def solve_it_trivial(input_data):
     # Modify this code to run your optimization algorithm
 
     # parse the input
@@ -62,6 +64,27 @@ def solve_it(input_data):
 
     return output_data
 
+
+def solve_it_mip(input_data):
+
+    data_dict = load_input_data(input_data)
+
+    model_instance = build_model(data_dict)
+
+    model_instance, results_instance = solve_model_milp(model_instance, 'cbc',
+                                                        r'C:\repos\coursera_discrete_optimization\solvers\cbc\bin\cbc.exe',
+                                                        timeout_time=180, ratio_gap=0, show_working=True)
+
+    results_dict = get_results_dict(model_instance, data_dict)
+
+    output_data = prepare_output_data(data_dict, results_dict, is_provably_optimal=results_dict['is_optimal'])
+
+    return output_data
+
+
+def solve_it(input_data):
+
+    return solve_it_mip(input_data)
 
 import sys
 
