@@ -4,7 +4,7 @@
 from collections import namedtuple
 import math
 from assignment_5.data_processing_functions import load_input_data, prepare_output_data
-from assignment_5.solving_functions import build_model,  solve_model_milp, get_results_dict
+from assignment_5.solving_functions import greedy_solution, build_model,  solve_model_milp, get_results_dict
 
 Point = namedtuple("Point", ['x', 'y'])
 Facility = namedtuple("Facility", ['index', 'setup_cost', 'capacity', 'location'])
@@ -65,17 +65,24 @@ def solve_it_trivial(input_data):
     return output_data
 
 
-def solve_it_mip(input_data):
+def solve_it_greedy(data_dict):
 
-    data_dict = load_input_data(input_data)
+    results_dict = greedy_solution(data_dict)
+
+    output_data = prepare_output_data(data_dict, results_dict, is_provably_optimal=results_dict['is_optimal'])
+
+    return output_data
+
+def solve_it_mip(data_dict):
 
     model_instance = build_model(data_dict)
 
-    model_instance, results_instance = solve_model_milp(model_instance, 'cbc',
-                                                        r'C:\repos\coursera_discrete_optimization\solvers\cbc\bin\cbc.exe',
-                                                        timeout_time=180, ratio_gap=0, show_working=True)
+    model_instance, results_instance = solve_model_milp(model_instance,
+                                                        'cplex','neos', #'cbc',
+                                                        #r'C:\repos\coursera_discrete_optimization\solvers\cbc\bin\cbc.exe',
+                                                        timeout_time=300, ratio_gap=0, show_working=True)
 
-    results_dict = get_results_dict(model_instance, data_dict)
+    results_dict = get_results_dict(model_instance, results_instance, data_dict)
 
     output_data = prepare_output_data(data_dict, results_dict, is_provably_optimal=results_dict['is_optimal'])
 
@@ -84,7 +91,14 @@ def solve_it_mip(input_data):
 
 def solve_it(input_data):
 
-    return solve_it_mip(input_data)
+    data_dict = load_input_data(input_data)
+
+    if len(data_dict['facility_cost_array']) >= 500:
+        output_data = solve_it_greedy(data_dict)
+    else:
+        output_data = solve_it_mip(data_dict)
+
+    return output_data
 
 import sys
 

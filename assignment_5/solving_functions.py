@@ -7,6 +7,64 @@ from pyomo.core.base import Var as pyo_vars
 from assignment_5.data_processing_functions import create_facility_customer_dist_matrix
 
 
+def greedy_solution(data_dict, facility_customer_dist_matrix=None):
+    if facility_customer_dist_matrix is None:
+        facility_customer_dist_matrix = create_facility_customer_dist_matrix(data_dict)
+
+    facility_cost_array = data_dict['facility_cost_array']
+    facility_capacity_array = data_dict['facility_capacity_array']
+    customer_demand_array = data_dict['customer_demand_array']
+
+    num_facilities = len(facility_capacity_array)
+
+    facility_customers = {}
+    fixed_costs = 0
+    transport_costs = 0
+
+    facility_remaining_capacity = {counter: facility_capacity_array[counter]
+                                   for counter in range(num_facilities)}
+
+    customer_ordering = np.argsort(np.min(facility_customer_dist_matrix, axis=0))
+
+    for customer in customer_ordering:
+        closest_facility_indexes = np.argsort(facility_customer_dist_matrix[:, customer])
+        customer_demand = customer_demand_array[customer]
+        customer_allocated = False
+        counter = 0
+        # print('customer: ' + str(customer))
+        # print('customer_demand: ' + str(customer_demand))
+        while not customer_allocated:
+            facility = closest_facility_indexes[counter]
+            # print('facility: ' + str(facility))
+            # print('facility capacity: ' +str(facility_remaining_capacity[facility]))
+            if facility in facility_customers.keys():
+                if facility_remaining_capacity[facility] >= customer_demand:
+                    facility_customers[facility].append(customer)
+                    facility_remaining_capacity[facility] -= customer_demand
+                    transport_costs += facility_customer_dist_matrix[facility, customer]
+                    customer_allocated = True
+                    # print('used facility ' + str(facility))
+                else:
+                    counter += 1
+            else:
+                facility_customers[facility] = [customer]
+                facility_remaining_capacity[facility] -= customer_demand
+                fixed_costs += facility_cost_array[facility]
+                transport_costs += facility_customer_dist_matrix[facility, customer]
+                customer_allocated = True
+                # print('used facility ' + str(facility))
+        # print(' ')
+
+    out_dict = {}
+    out_dict['facility_customers'] = facility_customers
+    out_dict['fixed_costs'] = fixed_costs
+    out_dict['transport_costs'] = transport_costs
+    out_dict['objective_value'] = fixed_costs + transport_costs
+    out_dict['is_optimal'] = False
+
+    return out_dict
+
+
 def objective_function(model):
     return sum(model.fixed_costs[f] * model.x[f] for f in model.F) \
            + sum(sum(model.transport_costs[f, c] * model.y[f, c] for f in model.F) for c in model.C)
