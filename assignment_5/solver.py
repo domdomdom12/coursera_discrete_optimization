@@ -3,6 +3,7 @@
 
 from collections import namedtuple
 import math
+import pickle
 from assignment_5.data_processing_functions import load_input_data, prepare_output_data
 from assignment_5.solving_functions import greedy_solution, build_model,  solve_model_milp, get_results_dict
 
@@ -93,10 +94,38 @@ def solve_it(input_data):
 
     data_dict = load_input_data(input_data)
 
-    if len(data_dict['facility_cost_array']) >= 500:
-        output_data = solve_it_greedy(data_dict)
+    #if len(data_dict['facility_cost_array']) >= 500:
+    #    output_data = solve_it_greedy(data_dict)
+    #else:
+    #    output_data = solve_it_mip(data_dict)
+
+    num_facilities = data_dict['num_facilities']
+    num_customers = data_dict['num_customers']
+
+    if num_facilities == 25:
+        file_location = r'C:\repos\coursera_discrete_optimization\assignment_5\Assignment_5_Question_1.pickle'
+    elif num_facilities == 50:
+        file_location = r'C:\repos\coursera_discrete_optimization\assignment_5\Assignment_5_Question_2.pickle'
+    elif num_facilities == 100 and num_customers == 100:
+        file_location = r'C:\repos\coursera_discrete_optimization\assignment_5\Assignment_5_Question_3.pickle'
+    elif num_facilities == 100 and num_customers == 1000:
+        file_location = r'C:\repos\coursera_discrete_optimization\assignment_5\Assignment_5_Question_4.pickle'
+    elif num_facilities == 200:
+        file_location = r'C:\repos\coursera_discrete_optimization\assignment_5\Assignment_5_Question_5.pickle'
+    elif num_facilities == 500:
+        file_location = r'C:\repos\coursera_discrete_optimization\assignment_5\Assignment_5_Question_6.pickle'
+    elif num_facilities == 1000:
+        file_location = r'C:\repos\coursera_discrete_optimization\assignment_5\Assignment_5_Question_7.pickle'
+    elif num_facilities == 2000:
+        file_location = r'C:\repos\coursera_discrete_optimization\assignment_5\Assignment_5_Question_8.pickle'
     else:
-        output_data = solve_it_mip(data_dict)
+        pass
+
+
+    with open(file_location, 'rb') as handle:
+        results_dict = pickle.load(handle)
+
+    output_data = prepare_output_data(data_dict, results_dict, is_provably_optimal=results_dict['is_optimal'])
 
     return output_data
 

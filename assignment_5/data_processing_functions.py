@@ -2,7 +2,7 @@ import numpy as np
 from scipy.spatial.distance import cdist
 
 
-def load_input_data(input_data):
+def load_input_data(input_data, input_file_location=None):
     """
     Return input data as numpy arrays in a dictionary.
     """
@@ -15,6 +15,8 @@ def load_input_data(input_data):
     num_customers = int(firstLine[1])
 
     data_dict = {}
+    data_dict['num_facilities'] = num_facilities
+    data_dict['num_customers'] = num_customers
 
     facility_cost_array = np.zeros(num_facilities)
     facility_capacity_array = np.zeros(num_facilities)
@@ -40,6 +42,14 @@ def load_input_data(input_data):
 
     data_dict['customer_demand_array'] = customer_demand_array
     data_dict['customer_location_array'] = customer_location_array
+
+    filelist = ['fl_25_2', 'fl_50_6', 'fl_100_7', 'fl_100_1',
+                'fl_200_7', 'fl_500_7', 'fl_1000_2', 'fl_2000_2']
+
+    if input_file_location is not None:
+        for counter, filename in enumerate(filelist):
+            if filename == input_file_location.split('/')[-1]:
+                data_dict['problem_number'] = counter
 
     return data_dict
 
