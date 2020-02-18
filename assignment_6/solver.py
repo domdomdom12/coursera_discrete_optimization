@@ -3,13 +3,15 @@
 
 import math
 from collections import namedtuple
+from assignment_6.data_processing_functions import load_input_data, prepare_output_data
+import pickle
 
 Customer = namedtuple("Customer", ['index', 'demand', 'x', 'y'])
 
 def length(customer1, customer2):
     return math.sqrt((customer1.x - customer2.x)**2 + (customer1.y - customer2.y)**2)
 
-def solve_it(input_data):
+def solve_it_trivial(input_data):
     # Modify this code to run your optimization algorithm
 
     # parse the input
@@ -71,6 +73,36 @@ def solve_it(input_data):
         outputData += str(depot.index) + ' ' + ' '.join([str(customer.index) for customer in vehicle_tours[v]]) + ' ' + str(depot.index) + '\n'
 
     return outputData
+
+
+def solve_it(input_data):
+
+    data_dict = load_input_data(input_data)
+
+    num_dropoffs = data_dict['num_dropoffs']
+
+    if num_dropoffs == 15:
+        file_location = r'C:\repos\coursera_discrete_optimization\assignment_6\Assignment_6_Question_1.pickle'
+    elif num_dropoffs == 25:
+        file_location = r'C:\repos\coursera_discrete_optimization\assignment_6\Assignment_6_Question_2.pickle'
+    elif num_dropoffs == 50:
+        file_location = r'C:\repos\coursera_discrete_optimization\assignment_6\Assignment_6_Question_3.pickle'
+    elif num_dropoffs == 100:
+        file_location = r'C:\repos\coursera_discrete_optimization\assignment_6\Assignment_6_Question_4.pickle'
+    elif num_dropoffs == 199:
+        file_location = r'C:\repos\coursera_discrete_optimization\assignment_6\Assignment_6_Question_5.pickle'
+    elif num_dropoffs == 420:
+        file_location = r'C:\repos\coursera_discrete_optimization\assignment_6\Assignment_6_Question_6.pickle'
+    else:
+        pass
+
+
+    with open(file_location, 'rb') as handle:
+        results_dict = pickle.load(handle)
+
+    output_data = prepare_output_data(results_dict, is_provably_optimal=False)
+
+    return output_data
 
 
 import sys
